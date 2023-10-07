@@ -132,7 +132,7 @@ Which will return  (specifics for the valid tracking number are **REDACTEDREDACT
                                 {
                                     "type": "SHIPPER_REFERENCE",
                                     "values": [
-                                        "Your ZOZOFIT Order 16312"
+                                        "REDACTEDREDACTED"
                                     ],
                                     "trackingNumberUniqueId": "",
                                     "carrierCode": ""
@@ -215,7 +215,7 @@ Which will return  (specifics for the valid tracking number are **REDACTEDREDACT
                                     ],
                                     "city": "OAKLAND",
                                     "stateOrProvinceCode": "CA",
-                                    "postalCode": "94611",
+                                    "postalCode": "REDACTEDREDACTED",
                                     "countryCode": "US",
                                     "residential": false
                                 },

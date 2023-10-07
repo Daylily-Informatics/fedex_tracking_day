@@ -313,7 +313,7 @@ Which will return  (specifics for the valid tracking number are **REDACTEDREDACT
 
 #### VALID BARCODE - SUMMARIZED DATA METHOD BEHAVIOR
 ```python
-json.dumps(track_d.get_fedex_ops_meta_ds('REDACTEDREDACTED'), indent=4)
+track_d.get_fedex_ops_meta_ds('REDACTEDREDACTED')
 ```
 
 Returns

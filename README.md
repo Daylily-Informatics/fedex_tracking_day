@@ -95,7 +95,7 @@ import fedex_tracking_day.fedex_track as FTD
 track_d = FTD.FedexTrack()
 track_d.get_fedex_json('invalid')
 # Out[4]:
-# {'transactionId': '482f7886-f118-441b-b7b9-4db4bc462ff1',
+# {'transactionId': 'REDACTEDREDACTED',
 #  'output': {'completeTrackResults': [{'trackingNumber': 'invalid',
 #    'trackResults': [{'trackingNumberInfo': {'trackingNumber': 'invalid',
 #       'trackingNumberUniqueId': '',
@@ -313,7 +313,7 @@ Which will return  (specifics for the valid tracking number are **REDACTEDREDACT
 
 #### VALID BARCODE - SUMMARIZED DATA METHOD BEHAVIOR
 ```python
-json.dumps(track_d.get_fedex_ops_meta_ds('780351469400'), indent=4)
+json.dumps(track_d.get_fedex_ops_meta_ds('REDACTEDREDACTED'), indent=4)
 ```
 
 Returns

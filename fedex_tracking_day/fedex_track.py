@@ -102,7 +102,7 @@ class FedexTrack:
         tender_datetime = ''
         tender_weekday = ''
         ship_zip = ''
-        delivery_zip = ''
+        destination_zip = ''
         
         try:
             for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['dateAndTimes']:
@@ -110,7 +110,7 @@ class FedexTrack:
                     act_delivery_dt = st['dateTime']
                     delivery_datetime = datetime.fromisoformat(act_delivery_dt)
                     delivery_weekday = weekday_names[delivery_datetime.weekday()]
-                    delivery_zip = st['postalCode']
+                    destination_zip = st['postalCode']
                 elif 'ACTUAL_PICKUP' in st['type']:
                     act_pu_dt = st['dateTime']
                 elif 'SHIP' in st['type']:

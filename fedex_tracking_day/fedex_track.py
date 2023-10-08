@@ -62,9 +62,12 @@ class FedexTrack:
 
         weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]
 
-        oritin_state = ''
+        origin_state = ''
+        origin_city = ''
+        dest_city = ''
         try:
             origin_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            origin_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['city']
         except Exception as e:
             return {
                 'Pickup_dt' : '',
@@ -72,10 +75,10 @@ class FedexTrack:
                 'Tender_dt' : '',
                 'Ship_dt' : '',
                 'Transit_Time_sec' : -1,
-                'Delivery_Status' : 'na',
-                'Origin_state' : 'na',
-                'Origin_zip' : 'na',
-                'Destination_zip' : '',
+                'Delivery_Status' : '',
+                'Origin_state' : '',
+                'Origin_city' : '',
+                'Destination_city' : '',
                 'Destination_state' : '',
                 'Delivery_weekday' : '',
                 'Ship_weekday' : '',
@@ -84,6 +87,7 @@ class FedexTrack:
         dest_state = ''
         try:
             dest_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            dest_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['city']
         except Exception as e:
             pass
 
@@ -101,8 +105,6 @@ class FedexTrack:
         ship_weekday = ""
         tender_datetime = ''
         tender_weekday = ''
-        ship_zip = ''
-        destination_zip = ''
         
         try:
             for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['dateAndTimes']:
@@ -110,14 +112,12 @@ class FedexTrack:
                     act_delivery_dt = st['dateTime']
                     delivery_datetime = datetime.fromisoformat(act_delivery_dt)
                     delivery_weekday = weekday_names[delivery_datetime.weekday()]
-                    destination_zip = st['postalCode']
                 elif 'ACTUAL_PICKUP' in st['type']:
                     act_pu_dt = st['dateTime']
                 elif 'SHIP' in st['type']:
                     ship_dt = st['dateTime']
                     ship_datetime = datetime.fromisoformat(ship_dt)
                     ship_weekday = weekday_names[ship_datetime.weekday()]
-                    ship_zip = st['postalCode']
                 elif 'ACTUAL_TENDER' in st['type']:
                     act_tender_dt = st['dateTime']
                     tender_datetime = datetime.fromisoformat(ship_dt)
@@ -138,8 +138,8 @@ class FedexTrack:
             'Delivery_Status' : delivery_status,
             'Origin_state' : origin_state,
             'Destination_state' : dest_state,
-            'Destination_zip' : destination_zip,
-            'Origin_zip' : ship_zip,
+            'Destination_city' : dest_city,
+            'Origin_city' : origin_city,
             'Delivery_weekday' : delivery_weekday,
             'Ship_weekday' : tender_weekday,
         }

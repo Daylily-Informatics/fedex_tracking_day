@@ -60,7 +60,7 @@ class FedexTrack:
     def get_fedex_ops_meta_ds(self, ti):
         fedex_json_tmp = self.get_fedex_json(ti)
 
-        weekday_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]
 
         oritin_state = ''
         try:
@@ -74,7 +74,9 @@ class FedexTrack:
                 'Transit_Time_sec' : -1,
                 'Delivery_Status' : 'na',
                 'Origin_state' : 'na',
-                'Destination_state' : 'na',
+                'Origin_zip' : 'na',
+                'Destination_zip' : '',
+                'Destination_state' : '',
                 'Delivery_weekday' : '',
                 'Ship_weekday' : '',
             }
@@ -99,18 +101,23 @@ class FedexTrack:
         ship_weekday = ""
         tender_datetime = ''
         tender_weekday = ''
+        ship_zip = ''
+        delivery_zip = ''
+        
         try:
             for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['dateAndTimes']:
                 if 'ACTUAL_DELIVERY' in st['type']:
                     act_delivery_dt = st['dateTime']
                     delivery_datetime = datetime.fromisoformat(act_delivery_dt)
                     delivery_weekday = weekday_names[delivery_datetime.weekday()]
+                    delivery_zip = st['postalCode']
                 elif 'ACTUAL_PICKUP' in st['type']:
                     act_pu_dt = st['dateTime']
                 elif 'SHIP' in st['type']:
                     ship_dt = st['dateTime']
                     ship_datetime = datetime.fromisoformat(ship_dt)
                     ship_weekday = weekday_names[ship_datetime.weekday()]
+                    ship_zip = st['postalCode']
                 elif 'ACTUAL_TENDER' in st['type']:
                     act_tender_dt = st['dateTime']
                     tender_datetime = datetime.fromisoformat(ship_dt)
@@ -131,6 +138,8 @@ class FedexTrack:
             'Delivery_Status' : delivery_status,
             'Origin_state' : origin_state,
             'Destination_state' : dest_state,
+            'Destination_zip' : destination_zip,
+            'Origin_zip' : ship_zip,
             'Delivery_weekday' : delivery_weekday,
             'Ship_weekday' : tender_weekday,
         }

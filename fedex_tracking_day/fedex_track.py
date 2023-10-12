@@ -60,16 +60,24 @@ class FedexTrack:
     def get_fedex_ops_meta_ds(self, ti):
         fedex_json_tmp = self.get_fedex_json(ti)
 
+        track_result_len = 0  # This is a HACK!  To handle the cases where there is a second track data set, ie: for when we internally create labels.  Improved logic is needed to 
+
         weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]
 
         origin_state = ''
+        origin_state_alt = ''
         origin_city = ''
         dest_city = ''
         try:
-            origin_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-            origin_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['city']
+            origin_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            origin_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['originLocation']['locationContactAndAddress']['address']['city']
+            origin_state_alt = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            track_result_len = len(fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'])
         except Exception as e:
             return {
+                'Origin_state_alt' : '',
+                'Destination_state_alt' : '',
+                'Track_result_len' : '',
                 'Pickup_dt' : '',
                 'Delivery_dt' : '',
                 'Tender_dt' : '',
@@ -84,16 +92,18 @@ class FedexTrack:
                 'Ship_weekday' : '',
             }
 
+        dest_state_alt = ''
         dest_state = ''
         try:
-            dest_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-            dest_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['city']
+            dest_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            dest_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['destinationLocation']['locationContactAndAddress']['address']['city']
+            dest_state_alt = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
         except Exception as e:
             pass
 
         delivery_status = ''
         try:
-            delivery_status = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['latestStatusDetail']['statusByLocale']
+            delivery_status = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['latestStatusDetail']['statusByLocale']
         except Exception as e:
             pass
         act_pu_dt = ""
@@ -107,7 +117,7 @@ class FedexTrack:
         tender_weekday = ''
         
         try:
-            for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['dateAndTimes']:
+            for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['dateAndTimes']:
                 if 'ACTUAL_DELIVERY' in st['type']:
                     act_delivery_dt = st['dateTime']
                     delivery_datetime = datetime.fromisoformat(act_delivery_dt)
@@ -142,6 +152,9 @@ class FedexTrack:
             'Origin_city' : origin_city,
             'Delivery_weekday' : delivery_weekday,
             'Ship_weekday' : tender_weekday,
+            'Origin_state_alt' : origin_state_alt,
+            'Destination_state_alt' : dest_state_alt,
+            'Track_result_len' : track_result_len
         }
 
         return fedex_json

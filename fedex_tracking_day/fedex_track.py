@@ -58,8 +58,12 @@ class FedexTrack:
 
     # Returns a pre-processed smaller dictionary of fedex info for this tracking number, with missing data handled consistently.
     def get_fedex_ops_meta_ds(self, ti):
-        fedex_json_tmp = self.get_fedex_json(ti)
-
+        fedex_json_tmp = None
+        try:
+            fedex_json_tmp = self.get_fedex_json(ti)
+        except Exception as e:
+            raise Exception(f"\n\nError Querying Fedex Tracking Number '{}', exception: {e}\n\n")
+                
         fedex_ops_json = []
         
         weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]

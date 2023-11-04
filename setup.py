@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='fedex_tracking_day',
-    version='0.2.2',
+    version='0.2.3',
     description='A Python library to intereact with the FedEx Tracking API',
     author='John Major',
     author_email='john@daylilyinformatics.com',

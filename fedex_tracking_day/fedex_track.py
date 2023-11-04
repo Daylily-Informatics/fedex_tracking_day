@@ -60,104 +60,110 @@ class FedexTrack:
     def get_fedex_ops_meta_ds(self, ti):
         fedex_json_tmp = self.get_fedex_json(ti)
 
-        track_result_len = 0  # This is a HACK!  To handle the cases where there is a second track data set, ie: for when we internally create labels.  Improved logic is needed to 
-
-        weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]
-
-        origin_state = ''
-        origin_state_alt = ''
-        origin_city = ''
-        dest_city = ''
-        try:
-            origin_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-            origin_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['originLocation']['locationContactAndAddress']['address']['city']
-            origin_state_alt = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-            track_result_len = len(fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'])
-        except Exception as e:
-            return {
-                'Origin_state_alt' : '',
-                'Destination_state_alt' : '',
-                'Track_result_len' : '',
-                'Pickup_dt' : '',
-                'Delivery_dt' : '',
-                'Tender_dt' : '',
-                'Ship_dt' : '',
-                'Transit_Time_sec' : -1,
-                'Delivery_Status' : '',
-                'Origin_state' : '',
-                'Origin_city' : '',
-                'Destination_city' : '',
-                'Destination_state' : '',
-                'Delivery_weekday' : '',
-                'Ship_weekday' : '',
-            }
-
-        dest_state_alt = ''
-        dest_state = ''
-        try:
-            dest_state = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-            dest_city = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['destinationLocation']['locationContactAndAddress']['address']['city']
-            dest_state_alt = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][0]['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-        except Exception as e:
-            pass
-
-        delivery_status = ''
-        try:
-            delivery_status = fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['latestStatusDetail']['statusByLocale']
-        except Exception as e:
-            pass
-        act_pu_dt = ""
-        act_delivery_dt = ""
-        ship_dt = ""
-        act_tender_dt = ""
-        transit_time_sec = ""
-        delivery_weekday = ''
-        ship_weekday = ""
-        tender_datetime = ''
-        tender_weekday = ''
+        fedex_ops_json = []
         
-        try:
-            for st in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults'][-1]['dateAndTimes']:
-                if 'ACTUAL_DELIVERY' in st['type']:
-                    act_delivery_dt = st['dateTime']
-                    delivery_datetime = datetime.fromisoformat(act_delivery_dt)
-                    delivery_weekday = weekday_names[delivery_datetime.weekday()]
-                elif 'ACTUAL_PICKUP' in st['type']:
-                    act_pu_dt = st['dateTime']
-                elif 'SHIP' in st['type']:
-                    ship_dt = st['dateTime']
-                    ship_datetime = datetime.fromisoformat(ship_dt)
-                    ship_weekday = weekday_names[ship_datetime.weekday()]
-                elif 'ACTUAL_TENDER' in st['type']:
-                    act_tender_dt = st['dateTime']
-                    tender_datetime = datetime.fromisoformat(ship_dt)
-                    tender_weekday = weekday_names[ship_datetime.weekday()]
-        except Exception as e:
-            pass
+        weekday_names = ["0_Monday", "1_Tuesday", "2_Wednesday", "3_Thursday", "4_Friday", "5_Saturday", "6_Sunday"]
+        
+        for trk_res in fedex_json_tmp['output']['completeTrackResults'][0]['trackResults']:
 
-        if ship_dt not in [''] and act_delivery_dt not in [''] and act_tender_dt not in ['']:
-            time_delta = datetime.fromisoformat(act_delivery_dt)-datetime.fromisoformat(act_tender_dt)
-            transit_time_sec = time_delta.total_seconds()
+            origin_state = ''
+            origin_state_alt = ''
+            origin_city = ''
+            dest_city = ''
+            try:
+                origin_state = trk_res['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+                origin_city = trk_res['originLocation']['locationContactAndAddress']['address']['city']
+                origin_state_alt = trk_res['originLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+
+            except Exception as e:
+                fedex_ops_json.append(
+                    {
+                        'Origin_state_alt' : '',
+                        'Destination_state_alt' : '',
+                        'Pickup_dt' : '',
+                        'Delivery_dt' : '',
+                        'Tender_dt' : '',
+                        'Ship_dt' : '',
+                        'Transit_Time_sec' : -1,
+                        'Delivery_Status' : '',
+                        'Origin_state' : '',
+                        'Origin_city' : '',
+                        'Destination_city' : '',
+                        'Destination_state' : '',
+                        'Delivery_weekday' : '',
+                        'Ship_weekday' : '',
+                    }
+                )
+                continue
             
-        fedex_json = {
-            'Pickup_dt' : act_pu_dt,
-            'Delivery_dt' : act_delivery_dt,
-            'Tender_dt' : act_tender_dt,
-            'Ship_dt' : ship_dt,
-            'Transit_Time_sec' : transit_time_sec,
-            'Delivery_Status' : delivery_status,
-            'Origin_state' : origin_state,
-            'Destination_state' : dest_state,
-            'Destination_city' : dest_city,
-            'Origin_city' : origin_city,
-            'Delivery_weekday' : delivery_weekday,
-            'Ship_weekday' : tender_weekday,
-            'Origin_state_alt' : origin_state_alt,
-            'Destination_state_alt' : dest_state_alt,
-            'Track_result_len' : track_result_len
-        }
+            dest_state_alt = ''
+            dest_state = ''
+            try:
+                dest_state = trk_res['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+                dest_city = trk_res['destinationLocation']['locationContactAndAddress']['address']['city']
+                dest_state_alt = trk_res['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+            except Exception as e:
+                pass
 
-        return fedex_json
+            delivery_status = ''
+
+            try:
+                delivery_status = trk_res['latestStatusDetail']['statusByLocale']
+            except Exception as e:
+                pass
+            act_pu_dt = ""
+            act_delivery_dt = ""
+            ship_dt = ""
+            act_tender_dt = ""
+            transit_time_sec = ""
+            delivery_weekday = ''
+            ship_weekday = ""
+            tender_datetime = ''
+            tender_weekday = ''
+            
+            try:
+                for st in trk_res['dateAndTimes']:
+                    if 'ACTUAL_DELIVERY' in st['type']:
+                        act_delivery_dt = st['dateTime']
+                        delivery_datetime = datetime.fromisoformat(act_delivery_dt)
+                        delivery_weekday = weekday_names[delivery_datetime.weekday()]
+                    elif 'ACTUAL_PICKUP' in st['type']:
+                        act_pu_dt = st['dateTime']
+                    elif 'SHIP' in st['type']:
+                        ship_dt = st['dateTime']
+                        ship_datetime = datetime.fromisoformat(ship_dt)
+                        ship_weekday = weekday_names[ship_datetime.weekday()]
+                    elif 'ACTUAL_TENDER' in st['type']:
+                        act_tender_dt = st['dateTime']
+                        tender_datetime = datetime.fromisoformat(ship_dt)
+                        tender_weekday = weekday_names[ship_datetime.weekday()]
+            except Exception as e:
+                pass
+
+            if ship_dt not in [''] and act_delivery_dt not in [''] and act_tender_dt not in ['']:
+                time_delta = datetime.fromisoformat(act_delivery_dt)-datetime.fromisoformat(act_tender_dt)
+                transit_time_sec = time_delta.total_seconds()
+                
+            fedex_ops_json.append(
+                {
+                    'Pickup_dt' : act_pu_dt,
+                    'Delivery_dt' : act_delivery_dt,
+                    'Tender_dt' : act_tender_dt,
+                    'Ship_dt' : ship_dt,
+                    'Transit_Time_sec' : transit_time_sec,
+                    'Delivery_Status' : delivery_status,
+                    'Origin_state' : origin_state,
+                    'Destination_state' : dest_state,
+                    'Destination_city' : dest_city,
+                    'Origin_city' : origin_city,
+                    'Delivery_weekday' : delivery_weekday,
+                    'Ship_weekday' : tender_weekday,
+                    'Origin_state_alt' : origin_state_alt,
+                    'Destination_state_alt' : dest_state_alt,
+                }
+            )
+
+        return fedex_ops_json
 
 
 

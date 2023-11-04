@@ -99,9 +99,9 @@ class FedexTrack:
             dest_state_alt = ''
             dest_state = ''
             try:
-                dest_state = trk_res['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
-                dest_city = trk_res['destinationLocation']['locationContactAndAddress']['address']['city']
-                dest_state_alt = trk_res['destinationLocation']['locationContactAndAddress']['address']['stateOrProvinceCode']
+                dest_state = trk_res['lastUpdatedDestinationAddress']['stateOrProvinceCode']
+                dest_city = trk_res['lastUpdatedDestinationAddress']['city']
+                dest_state_alt = trk_res['lastUpdatedDestinationAddress']['serviceDetail']['shortDescription']
             except Exception as e:
                 pass
 

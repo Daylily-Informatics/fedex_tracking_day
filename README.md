@@ -6,7 +6,7 @@ Slim python API to wrap using the FedEx Tracking Number API. NOTE:: **you must c
 ## Prerequisites
 ### OS
 * MAC or Linux
-
+ 
 ### FedEx Api Credentials
 * Follow the instructions [HERE](https://developer.fedex.com/api/en-us/get-started.html) to get appropriate credentials.
   * Follow all steps:

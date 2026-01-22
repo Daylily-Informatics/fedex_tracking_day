@@ -143,8 +143,11 @@ class FedexTrack:
             except Exception as e:
                 pass
 
-            if ship_dt not in [''] and act_delivery_dt not in [''] and act_tender_dt not in ['']:
+            if act_delivery_dt not in [''] and act_tender_dt not in ['']:
                 time_delta = datetime.fromisoformat(act_delivery_dt)-datetime.fromisoformat(act_tender_dt)
+                transit_time_sec = time_delta.total_seconds()
+            elif ship_dt not in [''] and act_delivery_dt not in ['']:
+                time_delta = datetime.fromisoformat(act_delivery_dt)-datetime.fromisoformat(ship_dt)
                 transit_time_sec = time_delta.total_seconds()
                 
             fedex_ops_json.append(
